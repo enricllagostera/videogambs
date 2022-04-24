@@ -1,0 +1,53 @@
+
+<div class="game_play" x-data="gameplay_info" x-show="$store.videogamb.stage=='game_play'" :class="`game_play--${players.length}p'`" @startmatch.window="startMatch($event); $nextTick(()=&gt;{prepareVideoPlayers()});">
+  <template x-for="player in players">
+    <div class="player_container" :class="`player_container--${players.length}p_${player.id+1}`">
+      <video class="player_container__video" :id="`vg_player_${player.id}`" @loadedmetadata="player.videoDuration = $el.duration;"></video>
+      <div class="player_container__hud">
+        <div class="meter_vertical meter--top">
+          <div class="meter_vertical__fg meter--action" @vgframe.window="$el.style.height = `${player.currentActionLevel}%`">
+            <p @vgframe.window="$el.innerText = `${Math.floor(player.currentActionLevel)}%`;"></p>
+          </div>
+        </div>
+        <div class="meter meter--bottom">
+          <div class="meter__fg meter--time" @vgframe.window="$el.style.width = `${Math.floor(player.videoTimeProgressed / player.videoDuration *100)}%`">
+            <p @vgframe.window="$el.innerText = `${Math.floor(player.videoTimeProgressed / player.videoDuration *100)}%`;"></p>
+          </div>
+        </div>
+        <div class="player_container__tagline" x-text="`P${(player.id+1)}`"></div>
+      </div>
+    </div>
+  </template>
+</div>
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('gameplay_info', () => ({
+      active: false,
+      players: [],
+      match: null,
+  
+      init(){
+        this.players = [{currentActionLevel: 0}];
+        this.match = new VGMatch();
+        this.active = false;
+      },
+  
+      startMatch(){
+        console.log("start the match");
+        Alpine.store('videogamb').stage = "game_play";
+        document.querySelector("body").style.maxWidth = "100%";
+        this.players = [];
+        for(let i = 0; i < Alpine.store('match').players.length; i++){
+          this.players.push(new VGPlayer(i));
+          this.players[i].addAction(new VGKeyUp(i, (i+1)+"", 5));
+        }
+        this.active = true;
+        this.match.begin();
+      },
+  
+      prepareVideoPlayers(){
+        this.players.forEach(player => player.setupVideo(Alpine.store('video_info').url));
+      }
+    }));
+  });
+</script>

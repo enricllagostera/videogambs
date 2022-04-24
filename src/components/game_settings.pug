@@ -1,0 +1,82 @@
+div(
+  x-data="{ drop_message: 'Drop a video file on this area to load it.' }" 
+  x-init="console.log($store.videogamb.stage)"
+  x-show="$store.videogamb.stage=='settings'")
+
+  fieldset
+    legend Game settings
+
+    #video_settings.container
+      h2 Video
+      label(for="video_file_input") Pick a video file:
+      input#video_file_input(
+        type="file" 
+        accept="video/*;capture=camcorder")
+      .video_chooser
+        #video_drop.video_chooser__drop(
+          @drop.prevent="drop_message = $store.video_info.loadDropFile($event);"
+          @dragover.prevent="")
+          p(x-text="drop_message") 
+        video#sample_video.video_chooser__video(style="" controls)
+
+    #player_settings
+      h2 Match settings
+      label(for="player_count_text") Number of players:
+      output(for="player_count_text" x-text="$store.match.player_count")
+      input#player_count_text(type="range" min="1" max="4" value="1" name="player_count_text" :value="$store.match.player_count" @change="$store.match.updatePlayerCount($el.value)")
+      #player_1.player_settings(x-show="$store.match.player_count>=1" x-transition)
+        h3 Player 1
+      #player_2.player_settings(x-show="$store.match.player_count>=2" x-transition)
+        h3 Player 2
+      #player_3.player_settings(x-show="$store.match.player_count>=3" x-transition)
+        h3 Player 3
+      #player_4.player_settings(x-show="$store.match.player_count>=4" x-transition)
+        h3 Player 4
+
+    button(@click="$dispatch('startmatch');") Next
+
+script.
+  document.addEventListener('alpine:init', () => {
+    Alpine.store('match', {
+      init(){
+        this.players = [{id:0}];
+        this.player_count = 1;
+      },
+      player_count: 1,
+      players: [],
+      updatePlayerCount(new_count){
+        this.players = [];
+        for(let i = 0; i < new_count; i++){
+          this.players.push({ id: i });
+        }
+        this.player_count = new_count;
+      }
+    });
+
+    Alpine.store('video_info', {
+      file: undefined,
+      url: undefined,
+      loadDropFile(ev) {
+        console.log("File(s) dropped");
+        // Use DataTransferItemList interface to access the file(s)
+        for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+          // If dropped items aren't files, reject them
+          if (ev.dataTransfer.items[i].kind === "file") {
+            var file = ev.dataTransfer.items[i].getAsFile();
+            console.log("... file[" + i + "].name = " + file.name);
+            console.log(file);
+          }
+        }
+        let sample_video = document.querySelector("#sample_video");
+        this.file = file;
+        const filename = ev.dataTransfer.files[0].name;
+        if (filename.endsWith(".mp4")) {
+          this.url = URL.createObjectURL(this.file);
+          sample_video.src = this.url;
+          sample_video.load();
+          return "Video loaded. Check if it is working correctly to the right.";
+          //- reset();
+        }
+      }
+    });
+  });

@@ -1,0 +1,61 @@
+doctype html
+html(lang="en")
+
+
+  head
+    title dspv
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(name="description" content="DSPV is a tool for making videogambs.")
+
+    // styles
+    style#base-style
+      include ../styles/new.css
+      include ../styles/dspv.css
+
+    // scripts
+    script
+      include ../scripts/main.js
+
+    script
+      include ../scripts/videogambs.js
+
+  body(onload="start()")
+    header(x-data  x-show="$store.videogamb.stage!='game_play'")
+      h1(style="font-size:1.5rem;") DSPV
+      //- include ../components/color_bar.pug
+
+    main.container
+      include ../components/game_settings.pug
+      include ../components/pre_start.pug
+
+    script.
+      document.addEventListener('alpine:init', () => {
+        Alpine.store('videogamb', {
+          init(){
+            this.stage = "settings";
+            this.match = null;
+          },
+        });
+      });
+
+    footer(x-data="{ y: -10 }")
+      p(@animation.window="y = Math.sin($event.detail.elapsed*0.01) * -2.5 -5") #[strong DSPV] is a tool for making videogambs. #[span(style="display:inline-block;transform:scale(1, 1) rotateZ(8deg) translateX(3px);") 🦵] #[span(:style="`display:inline-block;transform:scale(2, 2) translateY(${y}px);`") 📼] #[span(style="display:inline-block;transform:scale(-1, 1) rotateZ(8deg) translateX(3px);") 🦵]
+      script.
+        let last_frame = 0;
+
+        function step(elapsed){
+          let delta = elapsed - last_frame;
+          if(delta >= 50){
+            last_frame = elapsed;
+            //- console.log(elapsed, delta)
+            window.dispatchEvent(new CustomEvent('animation', {detail: {delta: delta, elapsed: elapsed}}))
+          }
+          window.requestAnimationFrame(step);
+        }
+
+        window.requestAnimationFrame(step)
+
+    // vendor scripts
+    script(defer)
+      include ../scripts/vendor/alpine.min.js

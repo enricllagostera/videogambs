@@ -1,3 +1,4 @@
-async function start() {
-    document.body.innerHTML = "hello";
+const start = async () =>
+{
+  console.log('Just an async starting point.')
 }

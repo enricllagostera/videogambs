@@ -1,1 +1,1 @@
-pug --pretty src -o dist --basedir src
+pug --pretty src -o docs --basedir src

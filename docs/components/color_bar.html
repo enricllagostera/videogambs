@@ -1,0 +1,21 @@
+
+<div class="color_switcher_bar" x-data="x-data" x-id="['color_switcher']">
+  <input type="checkbox" :value="$store.color_switcher.is_light" :id="$id('color_switcher')" @change="$store.color_switcher.toggle()"/>
+  <label :for="$id('color_switcher')" x-text="($store.color_switcher.is_light) ? 'Switch to dark theme' : 'Switch to light theme'"></label>
+</div>
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.store('color_switcher', {
+      init() {
+        this.is_light = !window.matchMedia('(prefers-color-scheme: dark)').matches
+      },
+      is_light: false,
+      toggle() {
+        this.is_light = !this.is_light
+        let root = document.querySelector('html');
+        let new_theme = (root.classList.contains('light'))? 'dark' : 'light';
+        root.setAttribute('class', new_theme);
+      }
+    })
+  });
+</script>

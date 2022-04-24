@@ -1,2 +1,2 @@
 call build
-light-server-pug -o -s dist -w "./src/** # build.cmd"
+npx light-server-pug -o -s docs -w "./src/** # build.cmd"

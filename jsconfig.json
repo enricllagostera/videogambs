@@ -1,8 +1,0 @@
-{
-    "compilerOptions": {
-      "module": "commonjs",
-      "target": "esnext",
-      "checkJs": true
-    },
-    "include": ["src/scripts/**/*.js", "src/library/library.d.ts"]
-}
