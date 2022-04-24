@@ -1,2 +1,6 @@
 node_modules
 test_videos
+src/encoder/1.mp4
+src/encoder/output.json
+src/encoder/output.txt
+docs/encoder/index.html
