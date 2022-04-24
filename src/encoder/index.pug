@@ -1,0 +1,30 @@
+doctype html
+html(lang="en")
+
+  head
+    title dspv - encoded
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(name="description" content="DSPV is a tool for making videogambs.")
+
+    // styles
+    style#base-style
+      include ../styles/new.css
+      include ../styles/dspv.css    
+
+    script
+      | const myInfo  = 
+      include ./output.txt
+      | ;
+
+  body
+    h1 teste
+    .loader(
+      x-data = `{ file: ""}`
+      x-init= "file = myInfo")
+      video(:src="file" style="width:300px;" controls)
+
+
+    // vendor scripts
+    script(defer)
+      include ../scripts/vendor/alpine.min.js
