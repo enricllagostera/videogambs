@@ -18,7 +18,7 @@ A system to play games by making a video play faster when you do something. Insp
       1. [x] Option: drag n drop from local
       2. [ ] Option: paste YouTube URL
    2. Define number of players (max 4 for classic splitscreen)
-      1. [ ] Each player gets a different video player shown side by side
+      1. [x] Each player gets a different video player shown side by side
       2. [ ] Define action for each player (e.g. keypress, mouse click)
       3. [ ] Tune each action effects (increment, decay, cooldown, actionFunction)
       4. [ ] Option: Players can write their names
@@ -30,10 +30,8 @@ A system to play games by making a video play faster when you do something. Insp
    3. Option: Create new game, same tuning, new video
    4. Option: Create new game from scratch, default tuning, blank video
 
-## Overview
-
-![System overview](notes/chart.png)
-
 ## Meta info
 
 I'm experimenting with using [standard-version](https://github.com/conventional-changelog/standard-version) in this project.
+
+Devlog notes have been moved to a separate folder (`../notes/` for now). I want to have them so they can be kept out of my git history. I am connecting them to diff commits via the **archivistagd** tool.
