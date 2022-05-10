@@ -2,7 +2,8 @@
   x-data="gameplay_info"
   x-show="$store.videogamb.stage=='game_play'"
   :class="`game_play--${players.length}p'`"
-  @startmatch.window="startMatch($event); $nextTick(()=>{prepareVideoPlayers()});")
+  @startmatch.window="startMatch($event); $nextTick(()=>{prepareVideoPlayers()});" 
+  )
     template(x-for="player in players")
       .player_container(:class="`player_container--${players.length}p_${player.id+1}`")
         video.player_container__video(:id="`vg_player_${player.id}`" @loadedmetadata="player.videoDuration = $el.duration;" )
@@ -29,7 +30,7 @@ script.
       match: null,
 
       init(){
-        this.players = [{currentActionLevel: 0}];
+        this.players = Alpine.store('match').players;
         this.match = new VGMatch();
         this.active = false;
       },
@@ -38,17 +39,17 @@ script.
         console.log("start the match");
         Alpine.store('videogamb').stage = "game_play";
         document.querySelector("body").style.maxWidth = "100%";
-        this.players = [];
-        for(let i = 0; i < Alpine.store('match').players.length; i++){
-          this.players.push(new VGPlayer(i));
-          this.players[i].addAction(new VGKeyUp(i, (i+1)+"", 5));
-        }
+        //- this.players = [];
+        //- for(let i = 0; i < Alpine.store('match').player_count; i++){
+        //-   //- this.players.push(new VGPlayer(i));
+        //-   //- this.players[i].addAction(new VGKeyUp(i, (i+1)+"", 5));
+        //- }
         this.active = true;
         this.match.begin();
       },
 
       prepareVideoPlayers(){
-        this.players.forEach(player => player.setupVideo(Alpine.store('video_info').url));
+        Alpine.store('match').players.forEach(player => player.setupVideo(Alpine.store('video_info').url));
       }
     }));
   });

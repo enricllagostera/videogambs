@@ -12,6 +12,8 @@ class VGMatch
 
   begin = () =>
   {
+    window.dispatchEvent(
+      new CustomEvent('matchstarted'));
     window.requestAnimationFrame(this.update);
   }
 
@@ -53,6 +55,7 @@ class VGPlayer
   currentActionLevel = 0;
   targetPlaybackRate = 1.0;
   videoTimeProgressed = 0;
+  preservesPitch = true;
   videoDuration = 0;
   isPlaying = false;
 
@@ -75,6 +78,7 @@ class VGPlayer
     this.videoUrl = videoUrl;
     this.videoElement = document.querySelector(`#vg_player_${this.id}`);
     this.videoElement.src = this.videoUrl;
+    this.videoElement.preservesPitch = this.preservesPitch;
     this.isPlaying = true;
     this.videoElement.addEventListener("ended", this.onVideoCompleted);
     this.videoTimeTotal = this.videoElement.duration;
@@ -128,6 +132,12 @@ class VGPlayer
       this.actions[action.id].destroy();
       delete this.actions[action.id];
     }
+  }
+
+  clearActions = () =>
+  {
+    this.actions.forEach(action => action.destroy());
+    this.actions = null;
   }
 
   destroy = () =>
@@ -186,7 +196,7 @@ class VGPlayer
     {
       this.videoTimeProgressed = this.videoElement.currentTime;
     }
-    console.log(this.videoDuration, this.videoTimeProgressed);
+    //console.log(this.videoDuration, this.videoTimeProgressed);
 
     // Calc new playback rate and change it
     this.targetPlaybackRate = this.calcPlaybackRate(action_lvl);
@@ -194,7 +204,18 @@ class VGPlayer
 
   onVideoCompleted = (ev) =>
   {
-    console.log(`P${this.id + 1} video  ended`);
+    console.log(`P${this.id + 1} video  completed`);
+    window.dispatchEvent(
+      new CustomEvent('vgvideocompleted', {
+        detail: {
+          playerId: this.id,
+          vgPlayer: this
+        }
+      }));
+  }
+
+  stopVideo = () =>
+  {
     this.actionLevel = 0;
     this.videoElement.pause();
     this.isPlaying = false;
@@ -227,6 +248,7 @@ class VGAction
   onFrame = (ev) =>
   {
     this.decayActionLevel(ev.detail.delta);
+
     // console.log("ac_lvl ", this.actionLevel);
   }
 
@@ -251,6 +273,17 @@ class VGAction
   decayActionLevel = (elapsed) =>
   {
     let res = this.actionLevel - (this.decayPerSec * 0.001 * elapsed);
+    if (res <= VGAction.ACTION_LEVEL_RANGE[0])
+    {
+      window.dispatchEvent(
+        new CustomEvent('vgactionlow', {
+          detail: {
+            playerId: this.id,
+            vgAction: this,
+            actionLevel: this.actionLevel
+          }
+        }));
+    }
     this.actionLevel = VGUtils.clamp(res, VGAction.ACTION_LEVEL_RANGE[0], VGAction.ACTION_LEVEL_RANGE[1]);
   }
 }

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>dspv</title>
+    <title>THE SUSTAINMENT</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DSPV is a tool for making videogambs.">
+    <meta name="description" content="Keep THE SUSTAINMENT alive.">
     <!-- styles-->
     <style id="base-style">
       :root {
@@ -1040,90 +1040,9 @@ class VGUtils
   </head>
   <body onload="start()">
     <header x-data x-show="$store.videogamb.stage!='game_play'">
-      <h1 style="font-size:1.5rem;">DSPV</h1>
+      <h1 style="font-size:1.5rem; text-align:center;">THE SUSTAINMENT</h1>
     </header>
     <main class="container">
-      <div x-data="{ drop_message: 'Drop a video file on this area to load it.' }" x-init="console.log($store.videogamb.stage)" x-show="$store.videogamb.stage=='settings'">
-        <fieldset>
-          <legend>Game settings</legend>
-          <div class="container" id="video_settings">
-            <h2>Video</h2>
-            <label for="video_file_input">Pick a video file:</label>
-            <input id="video_file_input" type="file" accept="video/*;capture=camcorder">
-            <div class="video_chooser">
-              <div class="video_chooser__drop" id="video_drop" @drop.prevent="drop_message = $store.video_info.loadDropFile($event);" @dragover.prevent="">
-                <p x-text="drop_message"> </p>
-              </div>
-              <video class="video_chooser__video" id="sample_video" controls></video>
-            </div>
-          </div>
-          <div id="player_settings">
-            <h2>Match settings</h2>
-            <label for="player_count_text">Number of players:</label>
-            <output for="player_count_text" x-text="$store.match.player_count"></output>
-            <input id="player_count_text" type="range" min="1" max="4" value="1" name="player_count_text" :value="$store.match.player_count" @change="$store.match.updatePlayerCount($el.value)">
-            <div class="player_settings" id="player_1" x-show="$store.match.player_count&gt;=1" x-transition>
-              <h3>Player 1</h3>
-            </div>
-            <div class="player_settings" id="player_2" x-show="$store.match.player_count&gt;=2" x-transition>
-              <h3>Player 2</h3>
-            </div>
-            <div class="player_settings" id="player_3" x-show="$store.match.player_count&gt;=3" x-transition>
-              <h3>Player 3</h3>
-            </div>
-            <div class="player_settings" id="player_4" x-show="$store.match.player_count&gt;=4" x-transition>
-              <h3>Player 4</h3>
-            </div>
-          </div>
-          <button @click="$dispatch('startmatch');">Next</button>
-        </fieldset>
-      </div>
-      <script>
-        document.addEventListener('alpine:init', () => {
-          Alpine.store('match', {
-            init(){
-              this.players = [{id:0}];
-              this.player_count = 1;
-            },
-            player_count: 1,
-            players: [],
-            updatePlayerCount(new_count){
-              this.players = [];
-              for(let i = 0; i < new_count; i++){
-                this.players.push({ id: i });
-              }
-              this.player_count = new_count;
-            }
-          });
-        
-          Alpine.store('video_info', {
-            file: undefined,
-            url: undefined,
-            loadDropFile(ev) {
-              console.log("File(s) dropped");
-              // Use DataTransferItemList interface to access the file(s)
-              for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-                // If dropped items aren't files, reject them
-                if (ev.dataTransfer.items[i].kind === "file") {
-                  var file = ev.dataTransfer.items[i].getAsFile();
-                  console.log("... file[" + i + "].name = " + file.name);
-                  console.log(file);
-                }
-              }
-              let sample_video = document.querySelector("#sample_video");
-              this.file = file;
-              const filename = ev.dataTransfer.files[0].name;
-              if (filename.endsWith(".mp4")) {
-                this.url = URL.createObjectURL(this.file);
-                sample_video.src = this.url;
-                sample_video.load();
-                return "Video loaded. Check if it is working correctly to the right.";
-                //- reset();
-              }
-            }
-          });
-        });
-      </script>
       <div class="game_play" x-data="gameplay_info" x-show="$store.videogamb.stage=='game_play'" :class="`game_play--${players.length}p'`" @startmatch.window="startMatch($event); $nextTick(()=&gt;{prepareVideoPlayers()});">
         <template x-for="player in players">
           <div class="player_container" :class="`player_container--${players.length}p_${player.id+1}`">
@@ -1176,36 +1095,73 @@ class VGUtils
           }));
         });
       </script>
-    </main>
-    <script>
-      document.addEventListener('alpine:init', () => {
-        Alpine.store('videogamb', {
-          init(){
-            this.stage = "settings";
-            this.match = null;
-          },
-        });
-      });
-      
-    </script>
-    <footer x-data="{ y: -10 }">
-      <p @animation.window="y = Math.sin($event.detail.elapsed*0.01) * -2.5 -5"><strong>DSPV</strong> is a tool for making videogambs. <span style="display:inline-block;transform:scale(1, 1) rotateZ(8deg) translateX(3px);">🦵</span> <span :style="`display:inline-block;transform:scale(2, 2) translateY(${y}px);`">📼</span> <span style="display:inline-block;transform:scale(-1, 1) rotateZ(8deg) translateX(3px);">🦵</span></p>
+      <div class="menu_controls" x-data="{started: false, loop_counter: 0, score: 0}" style="display: block; text-align: center; height: 100%;" x-show="$store.videogamb.stage!='game_play'" @matchstarted.window="onStart();" @vgactionlow.window.once="$dispatch('gameover');" @gameover.window="onGameOver($data)" @vgvideocompleted.window="loopOnCompleted($event.detail, $data);">
+        <button style=" width: 50%; height: 3rem;margin:1rem;" @click="console.log('clicked'); started = !started; $dispatch('startmatch');" x-show="$store.videogamb.stage=='settings'">Start match</button>
+        <div class="score" x-show="$store.videogamb.stage=='show_score'">
+          <h2>GAME OVER</h2>
+          <p style="font-size: 2rem;">Your score was <span x-text="Math.floor(score)"></span> and <span x-text="loop_counter"></span> loops.</p>
+          <button style=" width: 50%; height: 3rem;margin:1rem;" @click="window.location.reload();">Restart</button>
+        </div>
+      </div>
       <script>
-        let last_frame = 0;
+        document.addEventListener('alpine:init', () => {
+          this.onStart = () => {
+            for(let i = 0; i < Alpine.store('match').player_count; i++){
+              let new_player = new VGPlayer(i);
+              new_player.preservesPitch = (i > 0) ? true : false;
+              new_player.PLAYBACK_RATE_RANGE = [0.1, 2.0];
+              Alpine.store('match').players.push(new_player);
         
-        function step(elapsed){
-          let delta = elapsed - last_frame;
-          if(delta >= 50){
-            last_frame = elapsed;
-            //- console.log(elapsed, delta)
-            window.dispatchEvent(new CustomEvent('animation', {detail: {delta: delta, elapsed: elapsed}}))
+        
+              //- let action = new VGKeyUp(i, "a", 5);
+              let action = new VGKeyUp(i, (i+1)+"", 5);
+              action.actionLevel = 100;
+              action.decayPerSec = 15;
+              Alpine.store('match').players[i].addAction(action);
+            }
           }
-          window.requestAnimationFrame(step);
-        }
         
-        window.requestAnimationFrame(step)
+          this.onGameOver = (data) => {
+            for(let i = 0; i < Alpine.store('match').player_count; i++){
+              data.score += Alpine.store('match').players[i].videoTimeProgressed;
+              Alpine.store('match').players[i].stopVideo();
+              Alpine.store('match').players[i].isPlaying = false;
+            }
+            Alpine.store('videogamb').stage = "show_score";
+            document.querySelector("body").style.maxWidth = "750px";
+          }
+        
+          this.loopOnCompleted = (detail, data) => {
+            data.loop_counter += 1;
+            data.score += detail.vgPlayer.videoTimeProgressed;
+            console.log("LOOPING", detail.playerId, data.loop_counter);
+            detail.vgPlayer.playVideo();
+          }
+        
+          Alpine.store('videogamb', {
+            init(){
+              this.stage = "settings";
+            },
+          });
+        
+          Alpine.store('match', {
+            player_count: 1,
+            players: [],
+            init(){
+              this.player_count = 3;
+            },
+          });
+        
+          Alpine.store('video_info', {
+            url: "test.mkv"
+          })
+        });
+        
         
       </script>
+    </main>
+    <footer style="text-align: center;" x-data x-show="$store.videogamb.stage!='game_play'">
+      <p>Made with DSPV, a tool for making videogambs.</p>
     </footer>
     <!-- vendor scripts-->
     <script defer>(()=>{var qe=!1,Ue=!1,K=[];function It(e){nn(e)}function nn(e){K.includes(e)||K.push(e),on()}function he(e){let t=K.indexOf(e);t!==-1&&K.splice(t,1)}function on(){!Ue&&!qe&&(qe=!0,queueMicrotask(sn))}function sn(){qe=!1,Ue=!0;for(let e=0;e<K.length;e++)K[e]();K.length=0,Ue=!1}var A,B,Y,We,Ge=!0;function kt(e){Ge=!1,e(),Ge=!0}function Dt(e){A=e.reactive,Y=e.release,B=t=>e.effect(t,{scheduler:r=>{Ge?It(r):r()}}),We=e.raw}function Ye(e){B=e}function $t(e){let t=()=>{};return[n=>{let i=B(n);return e._x_effects||(e._x_effects=new Set,e._x_runEffects=()=>{e._x_effects.forEach(o=>o())}),e._x_effects.add(i),t=()=>{i!==void 0&&(e._x_effects.delete(i),Y(i))},i},()=>{t()}]}var Lt=[],Ft=[],jt=[];function Kt(e){jt.push(e)}function _e(e,t){typeof t=="function"?(e._x_cleanups||(e._x_cleanups=[]),e._x_cleanups.push(t)):(t=e,Ft.push(t))}function Bt(e){Lt.push(e)}function zt(e,t,r){e._x_attributeCleanups||(e._x_attributeCleanups={}),e._x_attributeCleanups[t]||(e._x_attributeCleanups[t]=[]),e._x_attributeCleanups[t].push(r)}function Je(e,t){!e._x_attributeCleanups||Object.entries(e._x_attributeCleanups).forEach(([r,n])=>{(t===void 0||t.includes(r))&&(n.forEach(i=>i()),delete e._x_attributeCleanups[r])})}var Qe=new MutationObserver(Ze),Xe=!1;function et(){Qe.observe(document,{subtree:!0,childList:!0,attributes:!0,attributeOldValue:!0}),Xe=!0}function cn(){an(),Qe.disconnect(),Xe=!1}var te=[],tt=!1;function an(){te=te.concat(Qe.takeRecords()),te.length&&!tt&&(tt=!0,queueMicrotask(()=>{ln(),tt=!1}))}function ln(){Ze(te),te.length=0}function m(e){if(!Xe)return e();cn();let t=e();return et(),t}var rt=!1,ge=[];function Vt(){rt=!0}function Ht(){rt=!1,Ze(ge),ge=[]}function Ze(e){if(rt){ge=ge.concat(e);return}let t=[],r=[],n=new Map,i=new Map;for(let o=0;o<e.length;o++)if(!e[o].target._x_ignoreMutationObserver&&(e[o].type==="childList"&&(e[o].addedNodes.forEach(s=>s.nodeType===1&&t.push(s)),e[o].removedNodes.forEach(s=>s.nodeType===1&&r.push(s))),e[o].type==="attributes")){let s=e[o].target,a=e[o].attributeName,c=e[o].oldValue,l=()=>{n.has(s)||n.set(s,[]),n.get(s).push({name:a,value:s.getAttribute(a)})},u=()=>{i.has(s)||i.set(s,[]),i.get(s).push(a)};s.hasAttribute(a)&&c===null?l():s.hasAttribute(a)?(u(),l()):u()}i.forEach((o,s)=>{Je(s,o)}),n.forEach((o,s)=>{Lt.forEach(a=>a(s,o))});for(let o of r)if(!t.includes(o)&&(Ft.forEach(s=>s(o)),o._x_cleanups))for(;o._x_cleanups.length;)o._x_cleanups.pop()();t.forEach(o=>{o._x_ignoreSelf=!0,o._x_ignore=!0});for(let o of t)r.includes(o)||!o.isConnected||(delete o._x_ignoreSelf,delete o._x_ignore,jt.forEach(s=>s(o)),o._x_ignore=!0,o._x_ignoreSelf=!0);t.forEach(o=>{delete o._x_ignoreSelf,delete o._x_ignore}),t=null,r=null,n=null,i=null}function xe(e){return k(I(e))}function C(e,t,r){return e._x_dataStack=[t,...I(r||e)],()=>{e._x_dataStack=e._x_dataStack.filter(n=>n!==t)}}function nt(e,t){let r=e._x_dataStack[0];Object.entries(t).forEach(([n,i])=>{r[n]=i})}function I(e){return e._x_dataStack?e._x_dataStack:typeof ShadowRoot=="function"&&e instanceof ShadowRoot?I(e.host):e.parentNode?I(e.parentNode):[]}function k(e){let t=new Proxy({},{ownKeys:()=>Array.from(new Set(e.flatMap(r=>Object.keys(r)))),has:(r,n)=>e.some(i=>i.hasOwnProperty(n)),get:(r,n)=>(e.find(i=>{if(i.hasOwnProperty(n)){let o=Object.getOwnPropertyDescriptor(i,n);if(o.get&&o.get._x_alreadyBound||o.set&&o.set._x_alreadyBound)return!0;if((o.get||o.set)&&o.enumerable){let s=o.get,a=o.set,c=o;s=s&&s.bind(t),a=a&&a.bind(t),s&&(s._x_alreadyBound=!0),a&&(a._x_alreadyBound=!0),Object.defineProperty(i,n,{...c,get:s,set:a})}return!0}return!1})||{})[n],set:(r,n,i)=>{let o=e.find(s=>s.hasOwnProperty(n));return o?o[n]=i:e[e.length-1][n]=i,!0}});return t}function ye(e){let t=n=>typeof n=="object"&&!Array.isArray(n)&&n!==null,r=(n,i="")=>{Object.entries(Object.getOwnPropertyDescriptors(n)).forEach(([o,{value:s,enumerable:a}])=>{if(a===!1||s===void 0)return;let c=i===""?o:`${i}.${o}`;typeof s=="object"&&s!==null&&s._x_interceptor?n[o]=s.initialize(e,c,o):t(s)&&s!==n&&!(s instanceof Element)&&r(s,c)})};return r(e)}function be(e,t=()=>{}){let r={initialValue:void 0,_x_interceptor:!0,initialize(n,i,o){return e(this.initialValue,()=>un(n,i),s=>it(n,i,s),i,o)}};return t(r),n=>{if(typeof n=="object"&&n!==null&&n._x_interceptor){let i=r.initialize.bind(r);r.initialize=(o,s,a)=>{let c=n.initialize(o,s,a);return r.initialValue=c,i(o,s,a)}}else r.initialValue=n;return r}}function un(e,t){return t.split(".").reduce((r,n)=>r[n],e)}function it(e,t,r){if(typeof t=="string"&&(t=t.split(".")),t.length===1)e[t[0]]=r;else{if(t.length===0)throw error;return e[t[0]]||(e[t[0]]={}),it(e[t[0]],t.slice(1),r)}}var qt={};function x(e,t){qt[e]=t}function re(e,t){return Object.entries(qt).forEach(([r,n])=>{Object.defineProperty(e,`$${r}`,{get(){let[i,o]=ot(t);return i={interceptor:be,...i},_e(t,o),n(t,i)},enumerable:!1})}),e}function Ut(e,t,r,...n){try{return r(...n)}catch(i){J(i,e,t)}}function J(e,t,r=void 0){Object.assign(e,{el:t,expression:r}),console.warn(`Alpine Expression Error: ${e.message}

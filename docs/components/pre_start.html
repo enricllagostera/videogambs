@@ -27,7 +27,7 @@
       match: null,
   
       init(){
-        this.players = [{currentActionLevel: 0}];
+        this.players = Alpine.store('match').players;
         this.match = new VGMatch();
         this.active = false;
       },
@@ -36,17 +36,17 @@
         console.log("start the match");
         Alpine.store('videogamb').stage = "game_play";
         document.querySelector("body").style.maxWidth = "100%";
-        this.players = [];
-        for(let i = 0; i < Alpine.store('match').players.length; i++){
-          this.players.push(new VGPlayer(i));
-          this.players[i].addAction(new VGKeyUp(i, (i+1)+"", 5));
-        }
+        //- this.players = [];
+        //- for(let i = 0; i < Alpine.store('match').player_count; i++){
+        //-   //- this.players.push(new VGPlayer(i));
+        //-   //- this.players[i].addAction(new VGKeyUp(i, (i+1)+"", 5));
+        //- }
         this.active = true;
         this.match.begin();
       },
   
       prepareVideoPlayers(){
-        this.players.forEach(player => player.setupVideo(Alpine.store('video_info').url));
+        Alpine.store('match').players.forEach(player => player.setupVideo(Alpine.store('video_info').url));
       }
     }));
   });

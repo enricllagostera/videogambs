@@ -1,0 +1,116 @@
+doctype html
+html(lang="en")
+
+  head
+    title THE SUSTAINMENT
+    meta(charset="utf-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(name="description" content="Keep THE SUSTAINMENT alive.")
+
+    // styles
+    style#base-style
+      include ../styles/vendor/new.css
+      include ../styles/dspv.css
+
+    // scripts
+    script
+      include ../scripts/main.js
+
+    script
+      include ../scripts/videogambs.js
+
+  body(onload="start()")
+    header(x-data  x-show="$store.videogamb.stage!='game_play'")
+      h1(style="font-size:1.5rem; text-align:center;") THE SUSTAINMENT
+      //- include ../components/color_bar.pug
+
+    main.container
+      //- include ../components/game_settings.pug
+      include ../components/pre_start.pug
+
+      .menu_controls(
+        x-data="{started: false, loop_counter: 0, score: 0}" 
+        style="display: block; text-align: center; height: 100%;"
+        x-show="$store.videogamb.stage!='game_play'"
+        @matchstarted.window="onStart();"
+        @vgactionlow.window.once="$dispatch('gameover');" 
+        @gameover.window="onGameOver($data)"
+        @vgvideocompleted.window="loopOnCompleted($event.detail, $data);")
+
+        button(
+          style=" width: 50%; height: 3rem;margin:1rem;"
+          @click="console.log('clicked'); started = !started; $dispatch('startmatch');" 
+          x-show="$store.videogamb.stage=='settings'") Start match
+
+        .score(x-show="$store.videogamb.stage=='show_score'")
+          h2 GAME OVER
+          p(style="font-size: 2rem;") Your score was #[span(x-text="Math.floor(score)")] and #[span(x-text="loop_counter")] loops.
+          button(
+            style=" width: 50%; height: 3rem;margin:1rem;"
+            @click="window.location.reload();" ) Restart
+
+
+      script.
+        document.addEventListener('alpine:init', () => {
+          this.onStart = () => {
+            for(let i = 0; i < Alpine.store('match').player_count; i++){
+              let new_player = new VGPlayer(i);
+              new_player.preservesPitch = (i > 0) ? true : false;
+              new_player.PLAYBACK_RATE_RANGE = [0.1, 2.0];
+              Alpine.store('match').players.push(new_player);
+
+
+              //- let action = new VGKeyUp(i, "a", 5);
+              let action = new VGKeyUp(i, (i+1)+"", 5);
+              action.actionLevel = 100;
+              action.decayPerSec = 15;
+              Alpine.store('match').players[i].addAction(action);
+            }
+          }
+
+          this.onGameOver = (data) => {
+            for(let i = 0; i < Alpine.store('match').player_count; i++){
+              data.score += Alpine.store('match').players[i].videoTimeProgressed;
+              Alpine.store('match').players[i].stopVideo();
+              Alpine.store('match').players[i].isPlaying = false;
+            }
+            Alpine.store('videogamb').stage = "show_score";
+            document.querySelector("body").style.maxWidth = "750px";
+          }
+
+          this.loopOnCompleted = (detail, data) => {
+            data.loop_counter += 1;
+            data.score += detail.vgPlayer.videoTimeProgressed;
+            console.log("LOOPING", detail.playerId, data.loop_counter);
+            detail.vgPlayer.playVideo();
+          }
+
+          Alpine.store('videogamb', {
+            init(){
+              this.stage = "settings";
+            },
+          });
+
+          Alpine.store('match', {
+            player_count: 1,
+            players: [],
+            init(){
+              this.player_count = 3;
+            },
+          });
+
+          Alpine.store('video_info', {
+            url: "test.mkv"
+          })
+        });
+
+
+    footer(
+      style="text-align: center;"
+      x-data 
+      x-show="$store.videogamb.stage!='game_play'")
+      p Made with DSPV, a tool for making videogambs.
+
+    // vendor scripts
+    script(defer)
+      include ../scripts/vendor/alpine.min.js
