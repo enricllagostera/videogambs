@@ -34,24 +34,6 @@ A system to play games by making a video play faster when you do something. Insp
 
 ![System overview](notes/chart.png)
 
-## Logs
-
-### 2022-03-27
-
-Some work on organizing the ideas a bit more. Made a chart to think the structure and flow of the app.
-
-### 2022-03-26
-
-I need to figure out what tool / environment is better for this. I have a feeling that doing it in the browser will be best. Godot seems to have limited options for video playing.
-
-- What is a minimal version of it?
-  - [x] Load local video file
-  - [x] One player
-  - [x] Action: button click
-  - [x] Show game over when video ended
-
-As it is right now, the game expects a `assets/video.mp4` file to work.
-
 ## Meta info
 
 I'm experimenting with using [standard-version](https://github.com/conventional-changelog/standard-version) in this project.
