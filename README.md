@@ -1,6 +1,6 @@
-# DSPV
+# VIDEOGAMBS
 
-A system to play games by making a video play faster when you do something. Inspired by **motor karaoke**.
+A system to play games by doing something to play a video. Inspired by **motor karaoke**, Mutoscopes and electromechanical arcades and carnival attractions.
 
 ## Concept
 
